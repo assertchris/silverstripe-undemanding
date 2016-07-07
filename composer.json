@@ -1,6 +1,7 @@
 {
     "name": "silverstripe/undemanding",
     "description": "Undemanding testing for SilverStripe sites.",
+    "type": "silverstripe-module",
     "license": "MIT",
     "require-dev": {
         "php": "^5.6|^7.0",
