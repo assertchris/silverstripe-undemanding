@@ -1,0 +1,9 @@
+<phpunit bootstrap="framework/tests/bootstrap.php" colors="true">
+    <testsuite>
+        <directory>mysite/tests</directory>
+    </testsuite>
+    <listeners>
+        <listener class="SS_TestListener" file="framework/dev/TestListener.php" />
+        <listener class="SilverStripe\Undemanding\Listener" file="undemanding/code/Listener.php" />
+    </listeners>
+</phpunit>
