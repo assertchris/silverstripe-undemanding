@@ -1,0 +1,16 @@
+{
+    "name": "silverstripe/undemanding",
+    "description": "Undemanding testing for SilverStripe sites.",
+    "license": "MIT",
+    "require-dev": {
+        "php": "^5.6|^7.0",
+        "phpunit/phpunit": "^5.4",
+        "silverstripe/serve": "dev-master",
+        "undemanding/client": "dev-master"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SilverStripe\\Undemanding\\": "code"
+        }
+    }
+}
