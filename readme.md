@@ -9,7 +9,7 @@ Add listener to `phpunit.xml`:
 ```xml
 <listeners>
     ... your other listeners
-    <listener class="SilverStripe\Undemanding\Listener" file="undemanding/src/Listener.php" />
+    <listener class="SilverStripe\Undemanding\Listener" file="undemanding/code/Listener.php" />
 </listeners>
 ```
 
