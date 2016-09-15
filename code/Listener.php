@@ -10,17 +10,16 @@ use PHPUnit_Framework_TestSuite;
 
 class Listener implements PHPUnit_Framework_TestListener
 {
+    use Executor;
+    use Finder;
+    use Killer;
+    use Logger;
     use Tester;
 
     /**
-     * @var bool
+     * @var string[]
      */
-    private $running = false;
-
-    /**
-     * @var int[]
-     */
-    private $pid = [];
+    private $ids = [];
 
     /**
      * @var bool
@@ -95,6 +94,7 @@ class Listener implements PHPUnit_Framework_TestListener
     public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
     {
         static::undemandingStart();
+
         $this->serveStart();
     }
 
@@ -109,38 +109,28 @@ class Listener implements PHPUnit_Framework_TestListener
 
         static::$run = true;
 
-        print "Running dev/build...\n";
-        @exec("framework/sake dev/build flush=1 > /dev/null 2> /dev/null");
+        $this->log("Running dev/build...");
+        $this->exec("framework/sake dev/build flush=1 > /dev/null 2> /dev/null", $silent = true, $background = false);
 
-        print "Finding open port...\n";
+        $this->log("Finding open port...");
 
         while (!$this->addressAvailable($this->getHost(), $this->getPort())) {
             $this->setPort($this->getPort() + 1);
         }
 
-        if (!$this->running) {
-            $host = $this->getHost();
-            $port = $this->getPort();
+        $host = $this->getHost();
+        $port = $this->getPort();
 
-            $hash = spl_object_hash($this);
+        $_SERVER["HTTP_HOST"] = sprintf("%s:%s", $host, $port);
 
-            print "Starting development server...\n";
-            $command = "framework/sake dev/tasks/SilverStripe-Serve-Task hash={$hash} host={$host} port={$port} > /dev/null 2> /dev/null &";
+        $hash = spl_object_hash($this);
 
-            exec($command, $output);
+        $this->log("Starting development server...");
+        $this->exec(sprintf("framework/sake dev/tasks/SilverStripe-Serve-Task hash=%s host=%s port=%s", $hash, $host, $port));
 
-            $command = "ps -o pid,command | grep {$hash}";
-            @exec($command, $output);
+        $this->ids = $this->find($hash);
 
-            if (count($output) > 0) {
-                foreach ($output as $line) {
-                    $parts = explode(" ", $line);
-                    $this->pid[] = $parts[0];
-                }
-            }
-
-            sleep(1);
-        }
+        sleep(1);
     }
 
     /**
@@ -180,6 +170,7 @@ class Listener implements PHPUnit_Framework_TestListener
     public function endTestSuite(PHPUnit_Framework_TestSuite $suite)
     {
         static::undemandingStop();
+
         $this->serveStop();
     }
 
@@ -188,10 +179,7 @@ class Listener implements PHPUnit_Framework_TestListener
      */
     private function serveStop()
     {
-        foreach ($this->pid as $pid) {
-            $command = "kill -9 {$pid} > /dev/null 2> /dev/null &";
-            @exec($command, $output);
-        }
+        $this->kill($this->ids);
     }
 
     /**
