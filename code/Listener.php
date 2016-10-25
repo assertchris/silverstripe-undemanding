@@ -126,7 +126,7 @@ class Listener implements PHPUnit_Framework_TestListener
         $hash = spl_object_hash($this);
 
         $this->log("Starting development server...");
-        $this->exec(sprintf("framework/sake dev/tasks/SilverStripe-Serve-Task hash=%s host=%s port=%s", $hash, $host, $port));
+        $this->exec(sprintf("vendor/bin/serve hash=%s host=%s port=%s", $hash, $host, $port));
 
         $this->ids = $this->find($hash);
 
